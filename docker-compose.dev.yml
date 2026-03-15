@@ -1,0 +1,27 @@
+services:
+  app:
+    build: ./server
+    environment:
+      - PORT=8080
+    expose:
+      - "8080"
+    restart: unless-stopped
+    networks:
+      - baby-cam-network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - baby-cam-network
+
+networks:
+  baby-cam-network:
+    driver: bridge

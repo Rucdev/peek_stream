@@ -2,14 +2,14 @@
 
 > Self-hosted baby monitor over the internet — no app required.
 
-ブラウザだけで動くセルフホスト型ライブカメラアプリ。  
+ブラウザだけで動くセルフホスト型ライブカメラアプリ。
 スマートフォン・PCのカメラ映像をインターネット越しにリアルタイム視聴できます。
 
 ## Features
 
 - **ブラウザだけで完結** — iOS/Android アプリ不要。Safari/Chrome で動作
 - **低遅延** — HLS ではなく WebRTC P2P 接続。遅延は通常 < 1秒
-- **インターネット越し対応** — Cloudflare Tunnel によりポート開放・証明書設定不要
+- **インターネット越し対応** — ngrok Tunnel によりポート開放・証明書設定不要
 - **部屋ごとパスワード** — 知っている人だけが視聴できる
 - **複数人同時視聴** — 2〜5人の同時接続を想定
 - **`docker compose up` 一発起動** — セットアップ最小限
@@ -21,7 +21,7 @@
        |
        | WebSocket (シグナリングのみ)
        ↓
-[Go シグナリングサーバー] ── [Cloudflare Tunnel] ── インターネット
+[Go シグナリングサーバー] ── [ngrok Tunnel] ── インターネット
        ↑
        | WebSocket (シグナリングのみ)
 [ウォッチャー側ブラウザ]
@@ -32,9 +32,8 @@
 ## Requirements
 
 - Docker & Docker Compose
-- Cloudflare アカウント（無料）
-  - [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) トークン
-  - [Cloudflare Calls TURN](https://developers.cloudflare.com/calls/turn/) API キー
+- ngrok アカウント（無料）
+  - [ngrok 認証トークン](https://dashboard.ngrok.com/get-started/your-authtoken)
 
 ## Quick Start
 
@@ -51,16 +50,16 @@ vi .env
 `.env` に以下を記入します：
 
 ```env
-TUNNEL_TOKEN=<Cloudflare Tunnel のトークン>
-CLOUDFLARE_TURN_API_KEY=<Cloudflare Calls TURN の API キー>
+NGROK_AUTHTOKEN=<ngrok の認証トークン>
 ```
 
 ```bash
 # 3. 起動
 docker compose up -d
 
-# 4. Cloudflare ダッシュボードに表示された URL にアクセス
-#    例: https://peakstream.yourdomain.com
+# 4. ngrok が払い出した URL を確認してアクセス
+docker compose logs ngrok
+#    例: https://xxxx-xx-xx-xxx-xx.ngrok-free.app
 ```
 
 ## Usage
@@ -84,8 +83,8 @@ docker compose up -d
 |---|---|---|
 | シグナリングサーバー | Go + gorilla/websocket | WebRTC Offer/Answer/ICE の中継 |
 | リバースプロキシ | nginx:alpine | 静的ファイル配信 |
-| 外部公開 | Cloudflare Tunnel | HTTPS・ポート開放不要 |
-| NAT 越え | Cloudflare STUN/TURN | P2P 接続のフォールバック |
+| 外部公開 | ngrok Tunnel | HTTPS・ポート開放不要 |
+| NAT 越え | Google STUN | P2P 接続のフォールバック |
 | フロントエンド | Vanilla JS | アプリ不要・ブラウザネイティブ |
 
 ## Repository Structure

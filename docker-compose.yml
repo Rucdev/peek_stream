@@ -1,10 +1,7 @@
-version: '3.8'
-
 services:
   app:
     build: ./server
     environment:
-      - CLOUDFLARE_TURN_API_KEY=${CLOUDFLARE_TURN_API_KEY:-}
       - PORT=8080
     expose:
       - "8080"
@@ -17,19 +14,19 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./static:/usr/share/nginx/html:ro
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
     depends_on:
       - app
     restart: unless-stopped
     networks:
       - baby-cam-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http nginx:80 --log=stdout
     environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     depends_on:
       - nginx
     restart: unless-stopped

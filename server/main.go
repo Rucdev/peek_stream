@@ -80,32 +80,12 @@ func handleICEConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Basic STUN configuration
-	// For production, implement Cloudflare TURN API integration here
 	config := ICEConfig{
 		ICEServers: []ICEServer{
 			{
 				URLs: []string{"stun:stun.l.google.com:19302"},
 			},
 		},
-	}
-
-	// If Cloudflare TURN API key is set, add TURN servers
-	apiKey := os.Getenv("CLOUDFLARE_TURN_API_KEY")
-	if apiKey != "" {
-		// In production, call Cloudflare API to get ephemeral credentials
-		// For now, use static configuration
-		config.ICEServers = append(config.ICEServers, ICEServer{
-			URLs: []string{
-				"stun:stun.cloudflare.com:3478",
-			},
-		})
-		// TURN configuration would be added here after API call
-		// config.ICEServers = append(config.ICEServers, ICEServer{
-		//     URLs:       []string{"turn:turn.cloudflare.com:3478"},
-		//     Username:   credentials.Username,
-		//     Credential: credentials.Credential,
-		// })
 	}
 
 	w.Header().Set("Content-Type", "application/json")

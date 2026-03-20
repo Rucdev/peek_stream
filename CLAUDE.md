@@ -10,7 +10,7 @@
 ```
 [Internet]
     |
-Cloudflare Tunnel (TLS・ポート開放不要)
+ngrok Tunnel (TLS・ポート開放不要)
     |
 nginx コンテナ (リバースプロキシ + 静的ファイル配信)
     |
@@ -58,15 +58,15 @@ peek_stream/
 
 | 変数 | 必須 | 説明 |
 |------|------|------|
-| `TUNNEL_TOKEN` | ✅ | Cloudflare Tunnelトークン |
-| `CLOUDFLARE_TURN_API_KEY` | ✅ | Cloudflare Calls TURN APIキー |
+| `NGROK_AUTHTOKEN` | ✅ | ngrok認証トークン |
 
 ## 技術スタック
 
 - **バックエンド**: Go + `gorilla/websocket` + `golang.org/x/crypto/bcrypt`
 - **フロントエンド**: Vanilla HTML/JS（フレームワークなし）
 - **認証**: 部屋単位のbcryptパスワード（インメモリ、永続化なし）
-- **ICE**: Cloudflare STUN/TURN（クレデンシャルはサーバー側で動的生成）
+- **ICE**: Google STUN（`stun.l.google.com:19302`）
+- **トンネル**: ngrok（`NGROK_AUTHTOKEN`で認証）
 
 ## 設計方針
 
@@ -83,10 +83,13 @@ docker compose -f docker-compose.dev.yml up
 
 # 本番
 cp .env.example .env
-# .env に TUNNEL_TOKEN, CLOUDFLARE_TURN_API_KEY を記入
+# .env に NGROK_AUTHTOKEN を記入（https://dashboard.ngrok.com/get-started/your-authtoken）
 docker compose up -d
+
+# ngrokが払い出したURLを確認
+docker compose logs ngrok
 ```
 
 ## 未実装・TODO
 
-- `handleICEConfig`: Cloudflare TURN APIの実際の呼び出しはコメントアウト中。現在はSTUNのみ返す。
+- `handleICEConfig`: 現在はGoogle STUNのみ返す。NAT越えが困難な環境ではTURNサーバーの追加を検討。
